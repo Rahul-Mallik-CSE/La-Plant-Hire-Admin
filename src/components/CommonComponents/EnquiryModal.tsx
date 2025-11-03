@@ -51,7 +51,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
 
         <div className="space-y-6 py-4">
           {/* Client Info */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-3 justify-center">
             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-black font-medium text-base shrink-0">
               {getInitials(enquiry.name)}
             </div>
@@ -71,10 +71,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
                 <p className="text-xs text-gray-500 mb-1">Service/equipment</p>
                 <p className="font-medium text-gray-900">{enquiry.equipment}</p>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-500 mb-1">Price</p>
-                <p className="font-semibold text-gray-900">$280/day</p>
-              </div>
             </div>
           </div>
 
@@ -90,16 +86,6 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
             <p className="text-sm text-gray-700 leading-relaxed">
               {enquiry.description}
             </p>
-          </div>
-
-          {/* Three-dot menu at bottom */}
-          <div className="flex justify-end">
-            <button
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="More options"
-            >
-              <MoreVertical className="h-5 w-5 text-gray-600" />
-            </button>
           </div>
 
           {/* Action Buttons based on status */}
