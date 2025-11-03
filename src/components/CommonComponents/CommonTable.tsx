@@ -8,7 +8,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -21,20 +20,25 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { MoreVertical } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { CgLayoutList } from "react-icons/cg";
+import EnquiryModal from "./EnquiryModal";
 
 interface CommonTableProps {
   data: Enquiry[];
   rowsPerPage?: number;
+  onStatusChange?: (updatedEnquiry: Enquiry) => void;
 }
 
 const CommonTable: React.FC<CommonTableProps> = ({
   data,
   rowsPerPage = 15,
+  onStatusChange,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Calculate pagination
   const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -95,6 +99,26 @@ const CommonTable: React.FC<CommonTableProps> = ({
     return pages;
   };
 
+  // Handle view button click
+  const handleViewClick = (enquiry: Enquiry) => {
+    setSelectedEnquiry(enquiry);
+    setIsModalOpen(true);
+  };
+
+  // Handle confirm order
+  const handleConfirmOrder = (enquiry: Enquiry) => {
+    const updatedEnquiry = { ...enquiry, status: "accepted" as const };
+    onStatusChange?.(updatedEnquiry);
+    setIsModalOpen(false);
+  };
+
+  // Handle cancel order
+  const handleCancelOrder = (enquiry: Enquiry) => {
+    const updatedEnquiry = { ...enquiry, status: "rejected" as const };
+    onStatusChange?.(updatedEnquiry);
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Table */}
@@ -112,7 +136,7 @@ const CommonTable: React.FC<CommonTableProps> = ({
                 </TableCell>
               </TableRow>
             ) : (
-              currentData.map((enquiry, index) => (
+              currentData.map((enquiry) => (
                 <TableRow
                   key={enquiry.id}
                   className="hover:bg-gray-50 transition-colors border-b  "
@@ -141,6 +165,7 @@ const CommonTable: React.FC<CommonTableProps> = ({
                         variant="outline"
                         size="sm"
                         className="h-8 px-4 text-xs font-medium bg-gray-200 hover:bg-gray-300"
+                        onClick={() => handleViewClick(enquiry)}
                       >
                         VIEW
                       </Button>
@@ -203,6 +228,15 @@ const CommonTable: React.FC<CommonTableProps> = ({
           </PaginationContent>
         </Pagination>
       )}
+
+      {/* Enquiry Modal */}
+      <EnquiryModal
+        enquiry={selectedEnquiry}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmOrder}
+        onCancel={handleCancelOrder}
+      />
     </div>
   );
 };

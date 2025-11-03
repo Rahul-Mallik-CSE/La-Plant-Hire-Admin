@@ -4,14 +4,24 @@
 
 import CommonTable from "@/components/CommonComponents/CommonTable";
 import { enquiriesData } from "@/data/AllData";
-import { useMemo } from "react";
+import { Enquiry } from "@/types/AllTypes";
+import { useState, useMemo } from "react";
 
 const CancelledOrders = () => {
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(enquiriesData);
+
   // Filter only rejected enquiries
   const rejectedEnquiries = useMemo(
-    () => enquiriesData.filter((enquiry) => enquiry.status === "rejected"),
-    []
+    () => enquiries.filter((enquiry) => enquiry.status === "rejected"),
+    [enquiries]
   );
+
+  // Handle status change
+  const handleStatusChange = (updatedEnquiry: Enquiry) => {
+    setEnquiries((prev) =>
+      prev.map((enq) => (enq.id === updatedEnquiry.id ? updatedEnquiry : enq))
+    );
+  };
 
   return (
     <div className="flex min-h-screen font-sans py-6 px-4 md:px-8">
@@ -19,7 +29,11 @@ const CancelledOrders = () => {
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
           Cancelled Orders ({rejectedEnquiries.length})
         </h1>
-        <CommonTable data={rejectedEnquiries} rowsPerPage={15} />
+        <CommonTable
+          data={rejectedEnquiries}
+          rowsPerPage={15}
+          onStatusChange={handleStatusChange}
+        />
       </div>
     </div>
   );
