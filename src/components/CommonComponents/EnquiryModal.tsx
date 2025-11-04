@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Enquiry } from "@/types/AllTypes";
 import { Button } from "@/components/ui/button";
-import { MoreVertical } from "lucide-react";
 
 interface EnquiryModalProps {
   enquiry: Enquiry | null;
