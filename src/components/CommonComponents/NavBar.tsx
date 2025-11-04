@@ -5,12 +5,13 @@
 import React, { useState } from "react";
 import { Bell, LogOut, Search } from "lucide-react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import LogoutModal from "./LogOutModal";
 
 const NavBar = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     // Perform logout actions here (clear tokens, etc.)
@@ -20,6 +21,16 @@ const NavBar = () => {
     router.push("/sign-in");
     setIsLogoutModalOpen(false);
   };
+
+  if (
+    pathname === "/sign-in" ||
+    pathname === "/forget-pass" ||
+    pathname === "/verify-pass" ||
+    pathname === "/verify-otp" ||
+    pathname === "/reset-pass"
+  ) {
+    return null;
+  }
 
   return (
     <>
