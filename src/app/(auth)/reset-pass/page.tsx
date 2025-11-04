@@ -5,7 +5,7 @@ import { ResetPassForm } from "@/components/AuthComponents/reset-pass-form";
 
 export default function ForgetPass() {
   return (
-    <div className="min-h-screen bg-[#fff4f1]">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto  ">
         <AuthHeader />
 

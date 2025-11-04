@@ -5,7 +5,7 @@ import { SignInForm } from "@/components/AuthComponents/signIn-form";
 
 export default function SignIn() {
   return (
-    <div className="min-h-screen bg-[#fff4f1]">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto  ">
         <AuthHeader />
 
