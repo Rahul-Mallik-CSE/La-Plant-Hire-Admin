@@ -122,18 +122,6 @@ export function SignInForm() {
           >
             Sign In
           </Button>
-
-          {/* Sign Up Link */}
-          <div className="text-center pt-2">
-            <span className="text-gray-600">Don&apos;t have an account? </span>
-            <Link
-              href={"/signUp"}
-              type="button"
-              className=" cursor-pointer font-medium hover:underline text-red-600"
-            >
-              Sign Up
-            </Link>
-          </div>
         </form>
       </CardContent>
     </Card>
