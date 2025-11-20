@@ -9,17 +9,45 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, ArrowLeft } from "lucide-react";
+import { useForgetPasswordMutation } from "@/redux/features/authAPI";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function ForgetPassForm() {
   const [email, setEmail] = useState("");
+  const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Send OTP to:", email);
+
+    if (!email) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    try {
+      const result = await forgetPassword({ username: email }).unwrap();
+      toast.success(result.message || "OTP sent to your email!");
+
+      // Store email in sessionStorage for next step
+      sessionStorage.setItem("reset_email", email);
+
+      // Navigate to OTP verification page
+      router.push("/verify-otp");
+    } catch (error) {
+      console.error("Forget password error:", error);
+      const err = error as { data?: { detail?: string; message?: string } };
+      toast.error(
+        err?.data?.detail ||
+          err?.data?.message ||
+          "Failed to send OTP. Please try again."
+      );
+    }
   };
 
   const handleBack = () => {
-    console.log("Navigate back to sign in");
+    router.push("/sign-in");
   };
 
   return (
@@ -29,7 +57,7 @@ export function ForgetPassForm() {
           <button
             type="button"
             onClick={handleBack}
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+            className="cursor-pointer flex items-center text-gray-600 hover:text-gray-800 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
             <span className="text-lg font-medium">Forget Password</span>
@@ -54,9 +82,10 @@ export function ForgetPassForm() {
           {/* Send OTP Button */}
           <Button
             type="submit"
-            className="w-full h-12 text-white font-medium text-base rounded-lg hover:opacity-90 transition-opacity bg-red-600 hover:bg-red-700"
+            disabled={isLoading}
+            className="w-full h-12 text-white font-medium text-base rounded-lg hover:opacity-90 transition-opacity bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send OTP
+            {isLoading ? "Sending OTP..." : "Send OTP"}
           </Button>
         </form>
       </CardContent>

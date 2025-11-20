@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { useResetPasswordMutation } from "@/redux/features/authAPI";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function ResetPassForm() {
   const [formData, setFormData] = useState({
@@ -18,22 +21,52 @@ export function ResetPassForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const router = useRouter();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
-    console.log("Password reset submitted:", formData);
+
+    if (formData.password.length < 8 || formData.password.length > 10) {
+      toast.error("Password must be 8-10 characters long");
+      return;
+    }
+
+    try {
+      const result = await resetPassword({
+        new_password: formData.password,
+      }).unwrap();
+
+      toast.success(result.message || "Password reset successfully!");
+
+      // Clear email and token from sessionStorage
+      sessionStorage.removeItem("reset_email");
+      sessionStorage.removeItem("reset_token");
+
+      // Navigate to sign-in page
+      router.push("/sign-in");
+    } catch (error) {
+      console.error("Reset password error:", error);
+      const err = error as { data?: { detail?: string; message?: string } };
+      toast.error(
+        err?.data?.detail ||
+          err?.data?.message ||
+          "Failed to reset password. Please try again."
+      );
+    }
   };
 
   const handleBack = () => {
-    console.log("Navigate back to OTP verification");
+    router.push("/verify-otp");
   };
 
   return (
@@ -107,9 +140,10 @@ export function ResetPassForm() {
           <div className="pt-2">
             <Button
               type="submit"
-              className="w-full h-12 text-white font-medium text-base rounded-lg hover:opacity-90 transition-opacity bg-red-600 hover:bg-red-700"
+              disabled={isLoading}
+              className="w-full h-12 text-white font-medium text-base rounded-lg hover:opacity-90 transition-opacity bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirm
+              {isLoading ? "Resetting..." : "Confirm"}
             </Button>
           </div>
         </form>
