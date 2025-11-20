@@ -8,18 +8,27 @@ import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutModal from "./LogOutModal";
 
+import { toast } from "sonner";
+
+import { logout } from "@/service/authService";
+
 const NavBar = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   const handleLogout = async () => {
-    // Perform logout actions here (clear tokens, etc.)
-    // Redirect to login page
-    // await logout();
-    // localStorage.removeItem("accessToken");
-    router.push("/sign-in");
+    // Clear authentication tokens from cookies
+    logout();
+
+    // Close modal
     setIsLogoutModalOpen(false);
+
+    // Show success message
+    toast.success("Logged out successfully");
+
+    // Redirect to login page
+    router.push("/sign-in");
   };
 
   if (

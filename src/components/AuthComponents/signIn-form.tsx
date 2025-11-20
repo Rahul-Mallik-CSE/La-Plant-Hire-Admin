@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Mail, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLoginMutation } from "@/redux/features/authAPI";
+
+import { toast } from "sonner";
+import { saveTokens } from "@/service/authService";
 
 export function SignInForm() {
   const [formData, setFormData] = useState({
@@ -21,15 +25,41 @@ export function SignInForm() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Sign in submitted:", formData);
-    router.push("/");
+
+    // Validation
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const result = await login({
+        username: formData.email,
+        password: formData.password,
+      }).unwrap();
+
+      // Store tokens in cookies
+      await saveTokens(result.access);
+
+      toast.success("Login successful!");
+      router.push("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      const err = error as { data?: { detail?: string; message?: string } };
+      const errorMessage =
+        err?.data?.detail ||
+        err?.data?.message ||
+        "Login failed. Please check your credentials.";
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -118,9 +148,10 @@ export function SignInForm() {
           {/* Sign In Button */}
           <Button
             type="submit"
-            className="w-full h-12 text-white font-medium text-base rounded-lg hover:opacity-90 transition-opacity bg-red-600 hover:bg-red-700"
+            disabled={isLoading}
+            className="w-full h-12 text-white font-medium text-base rounded-lg hover:opacity-90 transition-opacity bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
+            {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
       </CardContent>

@@ -2,10 +2,11 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getCurrentUser } from "./service/authService";
-import { jwtDecode } from "jwt-decode";
 
-const SIGN_IN_URL = "/signin";
+import { jwtDecode } from "jwt-decode";
+import { getCurrentUser } from "@/service/authService";
+
+const SIGN_IN_URL = "/sign-in";
 
 export async function middleware(request: NextRequest) {
   const token = await getCurrentUser();
@@ -29,13 +30,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/",
-    "/users",
-    "/bookingList",
-    "/settings",
-    "/court",
-    "/cart",
-    "/checkout",
-  ],
+  matcher: ["/", "/confirmed-orders", "/cancelled-orders", "/settings"],
 };
