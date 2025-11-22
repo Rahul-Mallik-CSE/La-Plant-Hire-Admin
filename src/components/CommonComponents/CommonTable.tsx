@@ -26,24 +26,28 @@ import { CgLayoutList } from "react-icons/cg";
 import EnquiryModal from "./EnquiryModal";
 import { useUpdateEnquiryStatusMutation } from "@/redux/features/enquiriesAPI";
 import { useUpdateConfirmedOrderStatusMutation } from "@/redux/features/confirmedOrdersAPI";
+import { useDeleteCancelledOrderMutation } from "@/redux/features/cancelledOrdersAPI";
 import { toast } from "sonner";
 
 interface CommonTableProps {
   data: Enquiry[];
   rowsPerPage?: number;
   isConfirmedOrdersPage?: boolean;
+  isCancelledOrdersPage?: boolean;
 }
 
 const CommonTable: React.FC<CommonTableProps> = ({
   data,
   rowsPerPage = 15,
   isConfirmedOrdersPage = false,
+  isCancelledOrdersPage = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateEnquiryStatus] = useUpdateEnquiryStatusMutation();
   const [updateConfirmedOrderStatus] = useUpdateConfirmedOrderStatusMutation();
+  const [deleteCancelledOrder] = useDeleteCancelledOrderMutation();
 
   // Calculate pagination
   const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -157,6 +161,18 @@ const CommonTable: React.FC<CommonTableProps> = ({
     } catch (error) {
       console.error("Failed to reject order:", error);
       toast.error("Failed to reject order");
+    }
+  };
+
+  // Handle delete order (for cancelled orders page)
+  const handleDeleteOrder = async (enquiry: Enquiry) => {
+    try {
+      await deleteCancelledOrder(enquiry.id).unwrap();
+      toast.success("Order deleted successfully");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to delete order:", error);
+      toast.error("Failed to delete order");
     }
   };
 
@@ -281,7 +297,9 @@ const CommonTable: React.FC<CommonTableProps> = ({
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmOrder}
         onCancel={handleCancelOrder}
+        onDelete={handleDeleteOrder}
         isConfirmedOrdersPage={isConfirmedOrdersPage}
+        isCancelledOrdersPage={isCancelledOrdersPage}
       />
     </div>
   );

@@ -18,7 +18,9 @@ interface EnquiryModalProps {
   onClose: () => void;
   onConfirm?: (enquiry: Enquiry) => void;
   onCancel?: (enquiry: Enquiry) => void;
+  onDelete?: (enquiry: Enquiry) => void;
   isConfirmedOrdersPage?: boolean;
+  isCancelledOrdersPage?: boolean;
 }
 
 const EnquiryModal: React.FC<EnquiryModalProps> = ({
@@ -27,7 +29,9 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
   onClose,
   onConfirm,
   onCancel,
+  onDelete,
   isConfirmedOrdersPage = false,
+  isCancelledOrdersPage = false,
 }) => {
   if (!enquiry) return null;
 
@@ -184,12 +188,23 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
 
             {(enquiry.status === "rejected" ||
               enquiry.status === "completed") && (
-              <Button
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white"
-                onClick={onClose}
-              >
-                GO BACK
-              </Button>
+              <>
+                {isCancelledOrdersPage && enquiry.status === "rejected" ? (
+                  <Button
+                    className="w-full bg-red-500 hover:bg-red-600 text-white"
+                    onClick={() => onDelete?.(enquiry)}
+                  >
+                    DELETE
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full bg-gray-500 hover:bg-gray-600 text-white"
+                    onClick={onClose}
+                  >
+                    GO BACK
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
