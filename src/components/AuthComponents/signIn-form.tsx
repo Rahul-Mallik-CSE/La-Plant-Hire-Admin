@@ -49,6 +49,12 @@ export function SignInForm() {
       // Store tokens in cookies
       await saveTokens(result.access);
 
+      // Store access token in localStorage for API authorization
+      localStorage.setItem("access_token", result.access);
+      if (result.refresh) {
+        localStorage.setItem("refresh_token", result.refresh);
+      }
+
       toast.success("Login successful!");
       router.push("/");
     } catch (error) {
