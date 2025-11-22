@@ -27,8 +27,8 @@ interface VerifyOtpRequest {
 }
 
 interface VerifyOtpResponse {
-  message: string;
-  token: string;
+  refresh: string;
+  access: string;
 }
 
 interface ResetPasswordRequest {
@@ -70,12 +70,14 @@ export const authApi = baseApi.injectEndpoints({
       ResetPasswordRequest
     >({
       query: (data) => {
-        const token = sessionStorage.getItem("reset_token");
+        const accessToken = sessionStorage.getItem("reset_access_token");
         return {
           url: "/auth/reset_password/",
           method: "POST",
           body: data,
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
         };
       },
     }),

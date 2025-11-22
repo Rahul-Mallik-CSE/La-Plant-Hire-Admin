@@ -66,11 +66,11 @@ export function VerifyOtpForm() {
         otp: parseInt(otpString),
       }).unwrap();
 
-      toast.success(result.message || "OTP verified successfully!");
+      toast.success("OTP verified successfully!");
 
-      // Store the reset token for password reset request
-      if (result.token) {
-        sessionStorage.setItem("reset_token", result.token);
+      // Store the access token for password reset request
+      if (result.access) {
+        sessionStorage.setItem("reset_access_token", result.access);
       }
 
       // Navigate to reset password page

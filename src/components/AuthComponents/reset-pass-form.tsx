@@ -48,9 +48,9 @@ export function ResetPassForm() {
 
       toast.success(result.message || "Password reset successfully!");
 
-      // Clear email and token from sessionStorage
+      // Clear email and access token from sessionStorage
       sessionStorage.removeItem("reset_email");
-      sessionStorage.removeItem("reset_token");
+      sessionStorage.removeItem("reset_access_token");
 
       // Navigate to sign-in page
       router.push("/sign-in");
