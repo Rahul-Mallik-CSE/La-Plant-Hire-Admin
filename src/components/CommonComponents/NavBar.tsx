@@ -21,6 +21,10 @@ const NavBar = () => {
     // Clear authentication tokens from cookies
     logout();
 
+    // Clear tokens from localStorage
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+
     // Close modal
     setIsLogoutModalOpen(false);
 

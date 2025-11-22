@@ -40,12 +40,15 @@ function DashboardSidebarContent() {
   const { state } = useSidebar();
 
   const handleLogout = async () => {
-    // Perform logout actions here (clear tokens, etc.)
-    // Redirect to login page
-    // await logout();
-    // localStorage.removeItem("accessToken");
-    router.push("/sign-in");
+    // Clear tokens from localStorage
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+
+    // Close modal
     setIsLogoutModalOpen(false);
+
+    // Redirect to login page
+    router.push("/sign-in");
   };
 
   if (
