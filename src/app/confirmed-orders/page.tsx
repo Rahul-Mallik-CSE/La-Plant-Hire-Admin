@@ -3,36 +3,51 @@
 "use client";
 
 import CommonTable from "@/components/CommonComponents/CommonTable";
-import { enquiriesData } from "@/data/AllData";
-import { Enquiry } from "@/types/AllTypes";
-import { useState, useMemo } from "react";
+import { useGetConfirmedOrdersQuery } from "@/redux/features/confirmedOrdersAPI";
 
 const ConfirmedOrders = () => {
-  const [enquiries, setEnquiries] = useState<Enquiry[]>(enquiriesData);
+  const { data, isLoading, error } = useGetConfirmedOrdersQuery(1);
 
-  // Filter only accepted enquiries
-  const acceptedEnquiries = useMemo(
-    () => enquiries.filter((enquiry) => enquiry.status === "accepted"),
-    [enquiries]
-  );
+  const confirmedOrders = data?.data || [];
 
-  // Handle status change
-  const handleStatusChange = (updatedEnquiry: Enquiry) => {
-    setEnquiries((prev) =>
-      prev.map((enq) => (enq.id === updatedEnquiry.id ? updatedEnquiry : enq))
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen font-sans py-6 px-4 md:px-8">
+        <div className="w-full space-y-6">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+            Confirmed Orders
+          </h1>
+          <div className="text-center py-8 text-gray-500">Loading...</div>
+        </div>
+      </div>
     );
-  };
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen font-sans py-6 px-4 md:px-8">
+        <div className="w-full space-y-6">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+            Confirmed Orders
+          </h1>
+          <div className="text-center py-8 text-red-500">
+            Error loading confirmed orders. Please try again.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen font-sans py-6 px-4 md:px-8">
       <div className="w-full space-y-6">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
-          Confirmed Orders ({acceptedEnquiries.length})
+          Confirmed Orders ({confirmedOrders.length})
         </h1>
         <CommonTable
-          data={acceptedEnquiries}
+          data={confirmedOrders}
           rowsPerPage={15}
-          onStatusChange={handleStatusChange}
+          isConfirmedOrdersPage={true}
         />
       </div>
     </div>

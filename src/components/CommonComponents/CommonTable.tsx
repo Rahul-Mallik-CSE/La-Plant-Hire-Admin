@@ -25,21 +25,25 @@ import { Button } from "@/components/ui/button";
 import { CgLayoutList } from "react-icons/cg";
 import EnquiryModal from "./EnquiryModal";
 import { useUpdateEnquiryStatusMutation } from "@/redux/features/enquiriesAPI";
+import { useUpdateConfirmedOrderStatusMutation } from "@/redux/features/confirmedOrdersAPI";
 import { toast } from "sonner";
 
 interface CommonTableProps {
   data: Enquiry[];
   rowsPerPage?: number;
+  isConfirmedOrdersPage?: boolean;
 }
 
 const CommonTable: React.FC<CommonTableProps> = ({
   data,
   rowsPerPage = 15,
+  isConfirmedOrdersPage = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateEnquiryStatus] = useUpdateEnquiryStatusMutation();
+  const [updateConfirmedOrderStatus] = useUpdateConfirmedOrderStatusMutation();
 
   // Calculate pagination
   const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -106,33 +110,53 @@ const CommonTable: React.FC<CommonTableProps> = ({
     setIsModalOpen(true);
   };
 
-  // Handle confirm order
+  // Handle confirm order (or complete order on confirmed orders page)
   const handleConfirmOrder = async (enquiry: Enquiry) => {
     try {
-      await updateEnquiryStatus({
-        id: enquiry.id,
-        status: "approved",
-      }).unwrap();
-      toast.success("Enquiry approved successfully");
+      if (isConfirmedOrdersPage) {
+        // Complete order on confirmed orders page
+        await updateConfirmedOrderStatus({
+          id: enquiry.id,
+          status: "completed",
+        }).unwrap();
+        toast.success("Order completed successfully");
+      } else {
+        // Approve enquiry on enquiries page
+        await updateEnquiryStatus({
+          id: enquiry.id,
+          status: "approved",
+        }).unwrap();
+        toast.success("Enquiry approved successfully");
+      }
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Failed to approve enquiry:", error);
-      toast.error("Failed to approve enquiry");
+      console.error("Failed to update order:", error);
+      toast.error("Failed to update order");
     }
   };
 
   // Handle cancel order
   const handleCancelOrder = async (enquiry: Enquiry) => {
     try {
-      await updateEnquiryStatus({
-        id: enquiry.id,
-        status: "rejected",
-      }).unwrap();
-      toast.success("Enquiry rejected successfully");
+      if (isConfirmedOrdersPage) {
+        // Reject confirmed order
+        await updateConfirmedOrderStatus({
+          id: enquiry.id,
+          status: "rejected",
+        }).unwrap();
+        toast.success("Order cancelled successfully");
+      } else {
+        // Reject enquiry
+        await updateEnquiryStatus({
+          id: enquiry.id,
+          status: "rejected",
+        }).unwrap();
+        toast.success("Enquiry rejected successfully");
+      }
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Failed to reject enquiry:", error);
-      toast.error("Failed to reject enquiry");
+      console.error("Failed to reject order:", error);
+      toast.error("Failed to reject order");
     }
   };
 
@@ -257,6 +281,7 @@ const CommonTable: React.FC<CommonTableProps> = ({
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmOrder}
         onCancel={handleCancelOrder}
+        isConfirmedOrdersPage={isConfirmedOrdersPage}
       />
     </div>
   );
