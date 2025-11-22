@@ -42,7 +42,7 @@ const CompletedOrders = () => {
     <div className="flex min-h-screen font-sans py-6 px-4 md:px-8">
       <div className="w-full space-y-6">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
-          Completed Orders ({completedOrders.length})
+          Completed Orders
         </h1>
         <CommonTable
           data={completedOrders}
