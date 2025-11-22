@@ -27,6 +27,7 @@ import EnquiryModal from "./EnquiryModal";
 import { useUpdateEnquiryStatusMutation } from "@/redux/features/enquiriesAPI";
 import { useUpdateConfirmedOrderStatusMutation } from "@/redux/features/confirmedOrdersAPI";
 import { useDeleteCancelledOrderMutation } from "@/redux/features/cancelledOrdersAPI";
+import { useDeleteCompletedOrderMutation } from "@/redux/features/completedOrdersAPI";
 import { toast } from "sonner";
 
 interface CommonTableProps {
@@ -34,6 +35,7 @@ interface CommonTableProps {
   rowsPerPage?: number;
   isConfirmedOrdersPage?: boolean;
   isCancelledOrdersPage?: boolean;
+  isCompletedOrdersPage?: boolean;
 }
 
 const CommonTable: React.FC<CommonTableProps> = ({
@@ -41,6 +43,7 @@ const CommonTable: React.FC<CommonTableProps> = ({
   rowsPerPage = 15,
   isConfirmedOrdersPage = false,
   isCancelledOrdersPage = false,
+  isCompletedOrdersPage = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
@@ -48,6 +51,7 @@ const CommonTable: React.FC<CommonTableProps> = ({
   const [updateEnquiryStatus] = useUpdateEnquiryStatusMutation();
   const [updateConfirmedOrderStatus] = useUpdateConfirmedOrderStatusMutation();
   const [deleteCancelledOrder] = useDeleteCancelledOrderMutation();
+  const [deleteCompletedOrder] = useDeleteCompletedOrderMutation();
 
   // Calculate pagination
   const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -164,10 +168,14 @@ const CommonTable: React.FC<CommonTableProps> = ({
     }
   };
 
-  // Handle delete order (for cancelled orders page)
+  // Handle delete order (for cancelled and completed orders page)
   const handleDeleteOrder = async (enquiry: Enquiry) => {
     try {
-      await deleteCancelledOrder(enquiry.id).unwrap();
+      if (isCancelledOrdersPage) {
+        await deleteCancelledOrder(enquiry.id).unwrap();
+      } else if (isCompletedOrdersPage) {
+        await deleteCompletedOrder(enquiry.id).unwrap();
+      }
       toast.success("Order deleted successfully");
       setIsModalOpen(false);
     } catch (error) {
@@ -300,6 +308,7 @@ const CommonTable: React.FC<CommonTableProps> = ({
         onDelete={handleDeleteOrder}
         isConfirmedOrdersPage={isConfirmedOrdersPage}
         isCancelledOrdersPage={isCancelledOrdersPage}
+        isCompletedOrdersPage={isCompletedOrdersPage}
       />
     </div>
   );

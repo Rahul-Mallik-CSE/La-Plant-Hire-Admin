@@ -25,6 +25,7 @@ import LogoutModal from "./LogOutModal";
 import { FaUserAlt } from "react-icons/fa";
 import { MdOutlineCancelPresentation } from "react-icons/md";
 import { GiConfirmed } from "react-icons/gi";
+import { TicketCheck } from "lucide-react";
 
 // import { logout } from "@/service/authService";
 export default function DashboardSidebar() {
@@ -126,6 +127,16 @@ function DashboardSidebarContent() {
               active={
                 pathname === "/cancelled-orders" ||
                 pathname.startsWith("/cancelled-orders")
+              }
+              collapsed={isCollapsed}
+            />
+            <NavItem
+              href="/completed-orders"
+              icon={TicketCheck}
+              label="Completed Orders"
+              active={
+                pathname === "/completed-orders" ||
+                pathname.startsWith("/completed-orders")
               }
               collapsed={isCollapsed}
             />
