@@ -52,14 +52,14 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
           {/* Client Info */}
           <div className="flex items-center gap-3 justify-center">
             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-black font-medium text-base shrink-0">
-              {getInitials(enquiry.name)}
+              {getInitials(enquiry.contact_name)}
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-base text-gray-900">
-                {enquiry.name}
+                {enquiry.contact_name}
               </h3>
-              <p className="text-sm text-gray-600">{enquiry.phone}</p>
-              <p className="text-sm text-gray-600">{enquiry.email}</p>
+              <p className="text-sm text-gray-600">{enquiry.contact_phone}</p>
+              <p className="text-sm text-gray-600">{enquiry.contact_email}</p>
             </div>
           </div>
 
@@ -68,24 +68,70 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
             <div className="flex justify-between items-start mb-2">
               <div>
                 <p className="text-xs text-gray-500 mb-1">Service/equipment</p>
-                <p className="font-medium text-gray-900">{enquiry.equipment}</p>
+                <p className="font-medium text-gray-900">
+                  {enquiry.service
+                    ? enquiry.service.name
+                    : enquiry.is_soild_request
+                    ? "Soil Request"
+                    : "Fill Request"}
+                </p>
               </div>
             </div>
           </div>
 
           {/* Duration */}
-          <div>
-            <p className="text-xs text-gray-500 mb-1">Duration</p>
-            <p className="font-medium text-gray-900">{enquiry.duration}</p>
-          </div>
+          {enquiry.servie_duration_days && (
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Duration</p>
+              <p className="font-medium text-gray-900">
+                {enquiry.servie_duration_days} days
+              </p>
+            </div>
+          )}
 
           {/* Description */}
-          <div>
-            <p className="text-xs text-gray-500 mb-1">Description</p>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {enquiry.description}
-            </p>
-          </div>
+          {enquiry.project_discription && (
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Description</p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                {enquiry.project_discription}
+              </p>
+            </div>
+          )}
+
+          {/* Additional Fields for Soil/Fill Requests */}
+          {(enquiry.volume || enquiry.fill_type_wanted) && (
+            <div className="space-y-2">
+              {enquiry.volume && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Volume</p>
+                  <p className="font-medium text-gray-900">{enquiry.volume}</p>
+                </div>
+              )}
+              {enquiry.fill_type_wanted && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Fill Type</p>
+                  <p className="font-medium text-gray-900">
+                    {enquiry.fill_type_wanted}
+                  </p>
+                </div>
+              )}
+              {enquiry.suburb && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Suburb</p>
+                  <p className="font-medium text-gray-900">{enquiry.suburb}</p>
+                </div>
+              )}
+              {enquiry.street_address && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Street Address</p>
+                  <p className="font-medium text-gray-900">
+                    {enquiry.street_address}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Action Buttons based on status */}
           <div className="flex gap-3 pt-2">
@@ -107,7 +153,7 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
               </>
             )}
 
-            {enquiry.status === "accepted" && (
+            {enquiry.status === "approved" && (
               <>
                 <Button
                   variant="outline"
@@ -125,7 +171,8 @@ const EnquiryModal: React.FC<EnquiryModalProps> = ({
               </>
             )}
 
-            {enquiry.status === "rejected" && (
+            {(enquiry.status === "rejected" ||
+              enquiry.status === "completed") && (
               <Button
                 className="w-full bg-gray-500 hover:bg-gray-600 text-white"
                 onClick={onClose}

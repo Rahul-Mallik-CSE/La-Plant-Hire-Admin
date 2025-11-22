@@ -24,21 +24,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { CgLayoutList } from "react-icons/cg";
 import EnquiryModal from "./EnquiryModal";
+import { useUpdateEnquiryStatusMutation } from "@/redux/features/enquiriesAPI";
+import { toast } from "sonner";
 
 interface CommonTableProps {
   data: Enquiry[];
   rowsPerPage?: number;
-  onStatusChange?: (updatedEnquiry: Enquiry) => void;
 }
 
 const CommonTable: React.FC<CommonTableProps> = ({
   data,
   rowsPerPage = 15,
-  onStatusChange,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [updateEnquiryStatus] = useUpdateEnquiryStatusMutation();
 
   // Calculate pagination
   const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -106,17 +107,33 @@ const CommonTable: React.FC<CommonTableProps> = ({
   };
 
   // Handle confirm order
-  const handleConfirmOrder = (enquiry: Enquiry) => {
-    const updatedEnquiry = { ...enquiry, status: "accepted" as const };
-    onStatusChange?.(updatedEnquiry);
-    setIsModalOpen(false);
+  const handleConfirmOrder = async (enquiry: Enquiry) => {
+    try {
+      await updateEnquiryStatus({
+        id: enquiry.id,
+        status: "approved",
+      }).unwrap();
+      toast.success("Enquiry approved successfully");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to approve enquiry:", error);
+      toast.error("Failed to approve enquiry");
+    }
   };
 
   // Handle cancel order
-  const handleCancelOrder = (enquiry: Enquiry) => {
-    const updatedEnquiry = { ...enquiry, status: "rejected" as const };
-    onStatusChange?.(updatedEnquiry);
-    setIsModalOpen(false);
+  const handleCancelOrder = async (enquiry: Enquiry) => {
+    try {
+      await updateEnquiryStatus({
+        id: enquiry.id,
+        status: "rejected",
+      }).unwrap();
+      toast.success("Enquiry rejected successfully");
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to reject enquiry:", error);
+      toast.error("Failed to reject enquiry");
+    }
   };
 
   return (
@@ -145,14 +162,18 @@ const CommonTable: React.FC<CommonTableProps> = ({
                   <TableCell>
                     <div className="flex items-center gap-3 py-2">
                       <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-black font-medium text-sm">
-                        {getInitials(enquiry.name)}
+                        {getInitials(enquiry.contact_name)}
                       </div>
                       <div>
                         <div className="font-medium text-gray-900 flex items-center gap-2">
-                          {enquiry.name}
+                          {enquiry.contact_name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          Equipment: {enquiry.equipment}
+                          {enquiry.service
+                            ? `Equipment: ${enquiry.service.name}`
+                            : enquiry.is_soild_request
+                            ? "Soil Request"
+                            : "Fill Request"}
                         </div>
                       </div>
                     </div>
