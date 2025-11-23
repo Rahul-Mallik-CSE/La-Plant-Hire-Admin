@@ -18,12 +18,15 @@ const NavBar = () => {
   const pathname = usePathname();
 
   const handleLogout = async () => {
-    // Clear authentication tokens from cookies
-    logout();
-
     // Clear tokens from localStorage
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+
+    // Clear access_token cookie
+    document.cookie = "access_token=; path=/; max-age=0; SameSite=Lax";
+
+    // Clear authentication tokens from server cookies
+    await logout();
 
     // Close modal
     setIsLogoutModalOpen(false);

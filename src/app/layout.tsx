@@ -8,6 +8,7 @@ import DashboardSidebar from "@/components/CommonComponents/DashboardSidebar";
 import NavBar from "@/components/CommonComponents/NavBar";
 import Providers from "@/redux/Providers";
 import { Toaster } from "sonner";
+import AuthGuard from "@/service/AuthGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
         <Providers>
           <SidebarProvider>
             <DashboardSidebar />
+            <AuthGuard />
             <SidebarInset>
               <div className=" w-full bg-white  ">
                 <NavBar />

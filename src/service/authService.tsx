@@ -17,7 +17,5 @@ export const getCurrentUser = async (): Promise<string | undefined> => {
 
 // Define a function to logout by deleting the token from cookies
 export const logout = async (): Promise<void> => {
-  (await cookies()).delete("token");
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+  (await cookies()).delete("access_token");
 };

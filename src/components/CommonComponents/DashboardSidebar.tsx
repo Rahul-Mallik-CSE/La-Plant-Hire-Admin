@@ -44,6 +44,9 @@ function DashboardSidebarContent() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
 
+    // Clear access_token cookie
+    document.cookie = "access_token=; path=/; max-age=0; SameSite=Lax";
+
     // Close modal
     setIsLogoutModalOpen(false);
 
