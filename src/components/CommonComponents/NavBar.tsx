@@ -103,12 +103,12 @@ const NavBar = () => {
             </div>
 
             {/* Notification Bell */}
-            <button
+            {/* <button
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5 text-gray-700" />
-            </button>
+            </button> */}
 
             {/* Logout Icon */}
             <Button
