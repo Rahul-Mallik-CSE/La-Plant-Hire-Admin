@@ -41,13 +41,44 @@ const CommonTable: React.FC<CommonTableProps> = ({
 }) => {
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [updateEnquiryStatus] = useUpdateEnquiryStatusMutation();
   const [updateConfirmedOrderStatus] = useUpdateConfirmedOrderStatusMutation();
   const [deleteCancelledOrder] = useDeleteCancelledOrderMutation();
   const [deleteCompletedOrder] = useDeleteCompletedOrderMutation();
 
-  // For server-side pagination we render returned data as-is
-  const currentData = data || [];
+  // Listen for search changes from NavBar
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const search = localStorage.getItem("table_search") || "";
+      setSearchTerm(search);
+    };
+    // Initial load
+    handleStorageChange();
+    // Listen for changes
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // Client-side filter data based on search term
+  const filteredData = React.useMemo(() => {
+    if (!searchTerm || !data) return data || [];
+    const term = searchTerm.toLowerCase();
+    return data.filter((enquiry) => {
+      const name = enquiry.contact_name?.toLowerCase() || "";
+      const email = enquiry.contact_email?.toLowerCase() || "";
+      const phone = enquiry.contact_phone?.toLowerCase() || "";
+      const serviceName = enquiry.service?.name?.toLowerCase() || "";
+      return (
+        name.includes(term) ||
+        email.includes(term) ||
+        phone.includes(term) ||
+        serviceName.includes(term)
+      );
+    });
+  }, [data, searchTerm]);
+
+  const currentData = filteredData || [];
 
   // Get initials from name
   const getInitials = (name: string) => {

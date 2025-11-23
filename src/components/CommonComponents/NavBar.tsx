@@ -14,8 +14,21 @@ import { logout } from "@/service/authService";
 
 const NavBar = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
   const pathname = usePathname();
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    // Store in localStorage so tables can read it
+    if (value.trim()) {
+      localStorage.setItem("table_search", value.trim());
+    } else {
+      localStorage.removeItem("table_search");
+    }
+    // Trigger storage event for other components
+    window.dispatchEvent(new Event("storage"));
+  };
 
   const handleLogout = async () => {
     // Clear tokens from localStorage
@@ -83,6 +96,8 @@ const NavBar = () => {
               <input
                 type="search"
                 placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-48 md:w-64 h-9 pl-9 pr-4 bg-gray-100 border-0 rounded-lg text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
               />
             </div>
