@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { useLoginMutation } from "@/redux/features/authAPI";
 
 import { toast } from "sonner";
-import { saveTokens } from "@/service/authService";
 
 export function SignInForm() {
   const [formData, setFormData] = useState({
@@ -46,13 +45,32 @@ export function SignInForm() {
         password: formData.password,
       }).unwrap();
 
-      // Store tokens in cookies
-      await saveTokens(result.access);
-
       // Store access token in localStorage for API authorization
       localStorage.setItem("access_token", result.access);
       if (result.refresh) {
         localStorage.setItem("refresh_token", result.refresh);
+      }
+
+      // Also set access_token cookie so server middleware can read it
+      try {
+        const parts = result.access.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          const exp = typeof payload.exp === "number" ? payload.exp : null;
+          const now = Math.floor(Date.now() / 1000);
+          const maxAge = exp && exp > now ? exp - now : 60 * 60 * 24; // fallback 1 day
+          document.cookie = `access_token=${result.access}; path=/; max-age=${maxAge}; SameSite=Lax; Secure`;
+        } else {
+          // fallback cookie for 1 day
+          document.cookie = `access_token=${result.access}; path=/; max-age=${
+            60 * 60 * 24
+          }; SameSite=Lax; Secure`;
+        }
+      } catch {
+        // silent
+        document.cookie = `access_token=${result.access}; path=/; max-age=${
+          60 * 60 * 24
+        }; SameSite=Lax; Secure`;
       }
 
       toast.success("Login successful!");
