@@ -48,6 +48,24 @@ const NavBar = () => {
     return null;
   }
 
+  const getPageTitle = (path: string | null) => {
+    if (!path) return "";
+    if (path === "/") return "Enquiries";
+    if (path.startsWith("/confirmed-orders")) return "Confirmed Orders";
+    if (path.startsWith("/cancelled-orders")) return "Cancelled Orders";
+    if (path.startsWith("/completed-orders")) return "Completed Orders";
+    if (path.startsWith("/settings")) return "Settings";
+    // fallback: use the last segment and capitalize words
+    const parts = path.split("/").filter(Boolean);
+    const last = parts[parts.length - 1] || "";
+    return last
+      .split("-")
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(" ");
+  };
+
+  const pageTitle = getPageTitle(pathname);
+
   return (
     <>
       <div className="w-full h-16 bg-white flex items-center px-2 md:px-6 shadow-md border-b border-gray-200">
@@ -55,7 +73,7 @@ const NavBar = () => {
           <div className="flex gap-3 text-sm ">
             <p className="text-gray-600">Dashboard</p>
             <p className="text-black">/</p>
-            <p className="text-black font-medium">Enquiries</p>
+            <p className="text-black font-medium">{pageTitle}</p>
           </div>
           {/* right side of navbar */}
           <div className="flex items-center gap-3">
