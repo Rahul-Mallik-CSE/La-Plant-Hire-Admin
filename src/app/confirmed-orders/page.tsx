@@ -4,9 +4,11 @@
 
 import CommonTable from "@/components/CommonComponents/CommonTable";
 import { useGetConfirmedOrdersQuery } from "@/redux/features/confirmedOrdersAPI";
+import { useState } from "react";
 
 const ConfirmedOrders = () => {
-  const { data, isLoading, error } = useGetConfirmedOrdersQuery(1);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetConfirmedOrdersQuery(page);
 
   const confirmedOrders = data?.data || [];
 
@@ -46,7 +48,8 @@ const ConfirmedOrders = () => {
         </h1>
         <CommonTable
           data={confirmedOrders}
-          rowsPerPage={15}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
           isConfirmedOrdersPage={true}
         />
       </div>

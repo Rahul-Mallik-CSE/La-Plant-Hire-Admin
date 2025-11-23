@@ -4,12 +4,13 @@
 
 import CommonTable from "@/components/CommonComponents/CommonTable";
 import { useGetEnquiriesQuery } from "@/redux/features/enquiriesAPI";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export default function Home() {
-  const { data, isLoading, error } = useGetEnquiriesQuery(1);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetEnquiriesQuery(page);
 
-  // Filter only pending enquiries
+  // Filter only pending enquiries from backend page
   const pendingEnquiries = useMemo(
     () => data?.data?.filter((enquiry) => enquiry.status === "pending") || [],
     [data]
@@ -49,7 +50,11 @@ export default function Home() {
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
           Enquiries
         </h1>
-        <CommonTable data={pendingEnquiries} rowsPerPage={15} />
+        <CommonTable
+          data={pendingEnquiries}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
+        />
       </div>
     </div>
   );

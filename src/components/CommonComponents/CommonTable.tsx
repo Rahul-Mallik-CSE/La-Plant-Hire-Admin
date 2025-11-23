@@ -11,15 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 import { Button } from "@/components/ui/button";
 import { CgLayoutList } from "react-icons/cg";
@@ -32,7 +23,9 @@ import { toast } from "sonner";
 
 interface CommonTableProps {
   data: Enquiry[];
-  rowsPerPage?: number;
+  // server-driven pagination: parent manages page
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
   isConfirmedOrdersPage?: boolean;
   isCancelledOrdersPage?: boolean;
   isCompletedOrdersPage?: boolean;
@@ -40,12 +33,12 @@ interface CommonTableProps {
 
 const CommonTable: React.FC<CommonTableProps> = ({
   data,
-  rowsPerPage = 15,
+  currentPage = 1,
+  onPageChange,
   isConfirmedOrdersPage = false,
   isCancelledOrdersPage = false,
   isCompletedOrdersPage = false,
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateEnquiryStatus] = useUpdateEnquiryStatusMutation();
@@ -53,11 +46,8 @@ const CommonTable: React.FC<CommonTableProps> = ({
   const [deleteCancelledOrder] = useDeleteCancelledOrderMutation();
   const [deleteCompletedOrder] = useDeleteCompletedOrderMutation();
 
-  // Calculate pagination
-  const totalPages = Math.ceil(data.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
+  // For server-side pagination we render returned data as-is
+  const currentData = data || [];
 
   // Get initials from name
   const getInitials = (name: string) => {
@@ -69,48 +59,16 @@ const CommonTable: React.FC<CommonTableProps> = ({
       .slice(0, 2);
   };
 
-  // Handle page change
+  // Handle page change (delegated to parent)
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    const next = Math.max(1, Math.floor(page));
+    if (!onPageChange) return;
+    // avoid redundant calls
+    if (next === currentPage) return;
+    onPageChange(next);
   };
 
-  // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxVisible = 5;
-
-    if (totalPages <= maxVisible) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
-          pages.push(i);
-        }
-        pages.push("ellipsis");
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push("ellipsis");
-        for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(1);
-        pages.push("ellipsis");
-        pages.push(currentPage - 1);
-        pages.push(currentPage);
-        pages.push(currentPage + 1);
-        pages.push("ellipsis");
-        pages.push(totalPages);
-      }
-    }
-
-    return pages;
-  };
+  // server-side pagination only supports Prev/Next and page indicator
 
   // Handle view button click
   const handleViewClick = (enquiry: Enquiry) => {
@@ -253,50 +211,26 @@ const CommonTable: React.FC<CommonTableProps> = ({
         </Table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => handlePageChange(currentPage - 1)}
-                className={
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-
-            {getPageNumbers().map((page, index) => (
-              <PaginationItem key={index}>
-                {page === "ellipsis" ? (
-                  <PaginationEllipsis />
-                ) : (
-                  <PaginationLink
-                    onClick={() => handlePageChange(page as number)}
-                    isActive={currentPage === page}
-                    className="cursor-pointer"
-                  >
-                    {page}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            ))}
-
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => handlePageChange(currentPage + 1)}
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      {/* Server-side Pagination controls (Prev / Page X / Next) */}
+      <div className="flex items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handlePageChange((currentPage || 1) - 1)}
+          disabled={(currentPage || 1) <= 1 || !onPageChange}
+        >
+          Prev
+        </Button>
+        <div className="text-sm text-gray-600">Page {currentPage}</div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handlePageChange((currentPage || 1) + 1)}
+          disabled={!onPageChange || currentData.length === 0}
+        >
+          Next
+        </Button>
+      </div>
 
       {/* Enquiry Modal */}
       <EnquiryModal

@@ -4,9 +4,11 @@
 
 import CommonTable from "@/components/CommonComponents/CommonTable";
 import { useGetCompletedOrdersQuery } from "@/redux/features/completedOrdersAPI";
+import { useState } from "react";
 
 const CompletedOrders = () => {
-  const { data, isLoading, error } = useGetCompletedOrdersQuery(1);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetCompletedOrdersQuery(page);
 
   const completedOrders = data?.data || [];
 
@@ -46,7 +48,8 @@ const CompletedOrders = () => {
         </h1>
         <CommonTable
           data={completedOrders}
-          rowsPerPage={15}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
           isCompletedOrdersPage={true}
         />
       </div>

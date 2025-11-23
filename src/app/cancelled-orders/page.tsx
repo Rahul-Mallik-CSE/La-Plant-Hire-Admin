@@ -4,9 +4,11 @@
 
 import CommonTable from "@/components/CommonComponents/CommonTable";
 import { useGetCancelledOrdersQuery } from "@/redux/features/cancelledOrdersAPI";
+import { useState } from "react";
 
 const CancelledOrders = () => {
-  const { data, isLoading, error } = useGetCancelledOrdersQuery(1);
+  const [page, setPage] = useState(1);
+  const { data, isLoading, error } = useGetCancelledOrdersQuery(page);
 
   const cancelledOrders = data?.data || [];
 
@@ -46,7 +48,8 @@ const CancelledOrders = () => {
         </h1>
         <CommonTable
           data={cancelledOrders}
-          rowsPerPage={15}
+          currentPage={page}
+          onPageChange={(p) => setPage(p)}
           isCancelledOrdersPage={true}
         />
       </div>
