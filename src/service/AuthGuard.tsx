@@ -8,8 +8,22 @@ import { jwtDecode } from "jwt-decode";
 
 export default function AuthGuard() {
   const router = useRouter();
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
 
   useEffect(() => {
+    // Skip auth check on public pages
+    const publicPages = [
+      "/sign-in",
+      "/forget-pass",
+      "/verify-pass",
+      "/verify-otp",
+      "/reset-pass",
+    ];
+    if (publicPages.includes(pathname)) {
+      return;
+    }
+
     try {
       // Prefer localStorage token
       const token =
@@ -49,14 +63,14 @@ export default function AuthGuard() {
         localStorage.removeItem("refresh_token");
         router.push("/sign-in");
       }
-    } catch (err) {
+    } catch {
       // if token is malformed, redirect
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       document.cookie = "access_token=; path=/; max-age=0; SameSite=Lax";
       router.push("/sign-in");
     }
-  }, [router]);
+  }, [router, pathname]);
 
   return null;
 }

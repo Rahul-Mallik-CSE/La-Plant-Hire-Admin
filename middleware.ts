@@ -35,10 +35,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
-    "/confirmed-orders",
-    "/cancelled-orders",
-    "/completed-orders",
-    "/settings",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - sign-in, forget-pass, verify-pass, verify-otp, reset-pass (auth pages)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|sign-in|forget-pass|verify-pass|verify-otp|reset-pass).*)",
   ],
 };
